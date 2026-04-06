@@ -1,3 +1,6 @@
+process.on('unhandledRejection', console.error);
+process.on('uncaughtException', console.error);
+
 const { Client, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
