@@ -1,7 +1,15 @@
 process.on('unhandledRejection', console.error);
 process.on('uncaughtException', console.error);
 
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { 
+  Client, 
+  GatewayIntentBits, 
+  EmbedBuilder, 
+  ButtonBuilder, 
+  ActionRowBuilder, 
+  ButtonStyle 
+} = require('discord.js');
+
 const axios = require('axios');
 
 const client = new Client({
@@ -23,28 +31,50 @@ client.on('messageCreate', async (message) => {
 
   if (message.content === "ip") {
     try {
-      // 🔥 غير الـ IP هنا
-      const res = await axios.get("https://api.mcsrvstat.us/2/play.yourserver.com");
+      const serverIP = "XDS-SMP.aternos.me";
+
+      const res = await axios.get(`https://api.mcsrvstat.us/2/${serverIP}`);
 
       const online = res.data.online ? "🟢 Online" : "🔴 Offline";
       const players = res.data.players ? res.data.players.online : 0;
 
       const embed = new EmbedBuilder()
-        .setTitle("🌐 Server Info")
-        .setColor("Blue")
+        .setTitle("🔥 Server Info")
+        .setColor("red")
         .addFields(
-          { name: "IP", value: "XDS-SMP.aternos.me", inline: true },
+          { name: "IP", value: serverIP, inline: true },
           { name: "PORT", value: "22472", inline: true },
           { name: "Status", value: online, inline: true },
-          { name: "Players Online", value: players.toString(), inline: true }
-        )
-        .setFooter({ text: "Server Bot" });
+          { name: "Players", value: players.toString(), inline: true }
+        );
 
-      message.reply({ embeds: [embed] });
+      // 🔥 زرار Copy
+      const button = new ButtonBuilder()
+        .setLabel("📋 Copy IP")
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId("copy_ip");
+
+      const row = new ActionRowBuilder().addComponents(button);
+
+      message.reply({ embeds: [embed], components: [row] });
 
     } catch (err) {
-      message.reply("حصل خطأ في جلب بيانات السيرفر ❌");
+      message.reply("السيرفر مقفول أو في مشكلة ❌");
     }
+  }
+});
+
+// 👇 لما حد يضغط الزرار
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isButton()) return;
+
+  if (interaction.customId === "copy_ip") {
+    const serverIP = "XDS-SMP.aternos.me";
+
+    await interaction.reply({
+      content: `📋 IP: ${serverIP}`,
+      ephemeral: true
+    });
   }
 });
 
