@@ -33,7 +33,8 @@ client.on('messageCreate', async (message) => {
     try {
       const serverIP = "XDS-SMP.aternos.me:22472";
 
-      const res = await axios.get(`https://api.mcsrvstat.us/2/${serverIP}`);
+      const serverIP = "IP:PORT";
+const res = await axios.get(`https://api.mcsrvstat.us/2/${serverIP}`);
 
       const online = res.data.online ? "🟢 Online" : "🔴 Offline";
       const players = res.data.players ? res.data.players.online : 0;
