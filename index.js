@@ -31,7 +31,7 @@ client.on('messageCreate', async (message) => {
 
   if (message.content === "ip") {
     try {
-      const serverIP = "XDS-SMP.aternos.me";
+      const serverIP = "XDS-SMP.aternos.me:22472";
 
       const res = await axios.get(`https://api.mcsrvstat.us/2/${serverIP}`);
 
