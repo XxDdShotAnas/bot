@@ -1,7 +1,7 @@
 process.on('unhandledRejection', console.error);
 process.on('uncaughtException', console.error);
 
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -20,8 +20,17 @@ client.once('clientReady', () => {
 client.on('messageCreate', (message) => {
   if (message.author.bot) return;
 
-  if (message.content === "ping") {
-    message.reply("pong 🏓");
+  if (message.content === "ip") {
+    const embed = new EmbedBuilder()
+      .setTitle("🌐 Server Info")
+      .setColor("Blue")
+      .addFields(
+        { name: "IP", value: "play.yourserver.com", inline: true },
+        { name: "PORT", value: "25565", inline: true }
+      )
+      .setFooter({ text: "Server Bot" });
+
+    message.reply({ embeds: [embed] });
   }
 });
 
