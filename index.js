@@ -25,8 +25,8 @@ client.on('messageCreate', (message) => {
       .setTitle("🌐 Server Info")
       .setColor("Blue")
       .addFields(
-        { name: "IP", value: "play.yourserver.com", inline: true },
-        { name: "PORT", value: "25565", inline: true }
+        { name: "IP", value: "XDS-SMP.aternos.me", inline: true },
+        { name: "PORT", value: "22472", inline: true }
       )
       .setFooter({ text: "Server Bot" });
 
