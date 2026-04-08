@@ -1,15 +1,7 @@
 process.on('unhandledRejection', console.error);
 process.on('uncaughtException', console.error);
 
-const { 
-  Client, 
-  GatewayIntentBits, 
-  EmbedBuilder, 
-  ButtonBuilder, 
-  ActionRowBuilder, 
-  ButtonStyle 
-} = require('discord.js');
-
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 
 const client = new Client({
@@ -22,55 +14,83 @@ const client = new Client({
 
 const TOKEN = process.env.TOKEN;
 
-// 🔥 حط IP + PORT هنا
-const serverIP = "XDS-SMP.aternos.me:22472";
+const serverIP = "XDS-SMP.aternos.me";
+const channelId = "1491468136090828943";
 
-client.once('clientReady', () => {
+let statusMessage;
+
+client.once('clientReady', async () => {
   console.log(`Logged in as ${client.user.tag}`);
+
+  const channel = await client.channels.fetch(channelId);
+
+  // دايمًا يمسح القديم ويبعت جديد (مضمون)
+await channel.bulkDelete(5).catch(() => {});
+
+statusMessage = await channel.send("⏳ Loading...");
+await statusMessage.pin();
+
+  setInterval(async () => {
+    try {
+      const res = await axios.get(`https://api.mcstatus.io/v2/status/java/${serverIP}`);
+
+      const online = res.data?.online ? "Online" : "Offline";
+      const players = res.data?.players?.online ?? "0";
+      const maxPlayers = res.data?.players?.max ?? "?";
+      const version = res.data?.version?.name_clean ?? "Unknown";
+
+      const embed = new EmbedBuilder()
+        .setColor(online === "Online" ? "Green" : "Red")
+        .setDescription(
+`**~ AURA MC**
+**:jigsaw: Java Edition IP** \`AuraMc.pro\`
+**:pager: Bedrock Edition IP** \`AuraMc.pro\` \`Port: 25566\`
+
+• الحالة | Status :green_circle: ${online}
+• اللاعبين | Players :globe_with_meridians: ${players}/${maxPlayers}
+• الإصدار | Version :tools: ${version}`
+        );
+
+      await statusMessage.edit({ embeds: [embed] });
+
+    } catch (err) {
+      console.log(err);
+    }
+  }, 10000);
 });
 
+
+// أمر ip
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
   if (message.content === "ip") {
     try {
-      const res = await axios.get(`https://api.mcsrvstat.us/2/${serverIP}`);
+      const res = await axios.get(`https://api.mcstatus.io/v2/status/java/${serverIP}`);
 
-      const online = res.data?.online ? "🟢 Online" : "🔴 Offline";
-      const players = res.data?.players?.online || 0;
+      const online = res.data?.online ? "Online" : "Offline";
+      const players = res.data?.players?.online ?? "0";
+      const maxPlayers = res.data?.players?.max ?? "?";
+      const version = res.data?.version?.name_clean ?? "Unknown";
 
       const embed = new EmbedBuilder()
-        .setTitle("🔥 Server Info")
-        .setColor("Blue")
-        .addFields(
-          { name: "IP", value: serverIP, inline: true },
-          { name: "Status", value: online, inline: true },
-          { name: "Players", value: players.toString(), inline: true }
+        .setColor(online === "Online" ? "Green" : "Red")
+        .setDescription(
+`**~ AURA MC**
+**:jigsaw: Java Edition IP** \`AuraMc.pro\`
+**:pager: Bedrock Edition IP** \`AuraMc.pro\` \`Port: 25566\`
+
+• الحالة | Status :green_circle: ${online}
+• اللاعبين | Players :globe_with_meridians: ${players}/${maxPlayers}
+• الإصدار | Version :tools: ${version}`
         );
 
-      const button = new ButtonBuilder()
-        .setLabel("📋 Copy IP")
-        .setStyle(ButtonStyle.Primary)
-        .setCustomId("copy_ip");
-
-      const row = new ActionRowBuilder().addComponents(button);
-
-      message.reply({ embeds: [embed], components: [row] });
+      message.reply({ embeds: [embed] });
 
     } catch (err) {
-      message.reply("السيرفر مقفول أو في مشكلة ❌");
+      console.log(err);
+      message.reply("❌ Error");
     }
-  }
-});
-
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isButton()) return;
-
-  if (interaction.customId === "copy_ip") {
-    await interaction.reply({
-      content: `📋 IP: ${serverIP}`,
-      ephemeral: true
-    });
   }
 });
 
